@@ -1,17 +1,30 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { GraduationCap, Menu, X } from 'lucide-react';
+import { GraduationCap, Menu, X, User, LogOut } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Navigation = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Tracks', path: '/tracks' },
-    { name: 'About', path: '/about' },
+    ...(user ? [{ name: 'Dashboard', path: '/dashboard' }] : []),
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <nav className="bg-background/80 backdrop-blur-lg border-b border-border sticky top-0 z-50">
@@ -42,14 +55,40 @@ const Navigation = () => {
             ))}
           </div>
 
-          {/* Auth Buttons */}
+          {/* Auth Section */}
           <div className="hidden md:flex items-center space-x-3">
-            <Button variant="outline" size="sm">
-              Login
-            </Button>
-            <Button size="sm" className="bg-gradient-to-r from-career-blue to-career-purple hover:opacity-90">
-              Sign Up
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                    <User className="h-4 w-4" />
+                    <span>Account</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" className="flex items-center space-x-2">
+                      <User className="h-4 w-4" />
+                      <span>Dashboard</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="flex items-center space-x-2 text-destructive">
+                    <LogOut className="h-4 w-4" />
+                    <span>Sign Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/auth">Login</Link>
+                </Button>
+                <Button size="sm" asChild>
+                  <Link to="/auth">Sign Up</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -84,12 +123,31 @@ const Navigation = () => {
                 </Link>
               ))}
               <div className="flex flex-col space-y-2 pt-2">
-                <Button variant="outline" size="sm">
-                  Login
-                </Button>
-                <Button size="sm" className="bg-gradient-to-r from-career-blue to-career-purple hover:opacity-90">
-                  Sign Up
-                </Button>
+                {user ? (
+                  <>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                        Dashboard
+                      </Link>
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={handleSignOut}>
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
+                        Login
+                      </Link>
+                    </Button>
+                    <Button size="sm" asChild>
+                      <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
+                        Sign Up
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>

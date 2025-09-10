@@ -8,7 +8,10 @@ import Landing from "./pages/Landing";
 import Tracks from "./pages/Tracks";
 import TrackDetail from "./pages/TrackDetail";
 import Quiz from "./pages/Quiz";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
 
@@ -18,16 +21,19 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Navigation />
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/tracks" element={<Tracks />} />
-          <Route path="/track/:slug" element={<TrackDetail />} />
-          <Route path="/track/:slug/quiz" element={<Quiz />} />
-          <Route path="/about" element={<Landing />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Navigation />
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/tracks" element={<Tracks />} />
+            <Route path="/track/:slug" element={<TrackDetail />} />
+            <Route path="/track/:slug/quiz" element={<Quiz />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

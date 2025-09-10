@@ -14,7 +14,148 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          branch_stream: string | null
+          college_name: string | null
+          created_at: string
+          full_name: string
+          id: string
+          interests: string[] | null
+          phone_number: string | null
+          updated_at: string
+          user_id: string
+          year_of_study: string | null
+        }
+        Insert: {
+          branch_stream?: string | null
+          college_name?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          interests?: string[] | null
+          phone_number?: string | null
+          updated_at?: string
+          user_id: string
+          year_of_study?: string | null
+        }
+        Update: {
+          branch_stream?: string | null
+          college_name?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          interests?: string[] | null
+          phone_number?: string | null
+          updated_at?: string
+          user_id?: string
+          year_of_study?: string | null
+        }
+        Relationships: []
+      }
+      quiz_results: {
+        Row: {
+          answers: Json
+          created_at: string
+          id: string
+          recommended: boolean
+          score: number
+          track_id: string
+          user_id: string
+        }
+        Insert: {
+          answers: Json
+          created_at?: string
+          id?: string
+          recommended?: boolean
+          score: number
+          track_id: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          recommended?: boolean
+          score?: number
+          track_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_results_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subjects: {
+        Row: {
+          created_at: string
+          id: string
+          resources: Json | null
+          subject_desc: string | null
+          subject_name: string
+          track_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          resources?: Json | null
+          subject_desc?: string | null
+          subject_name: string
+          track_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          resources?: Json | null
+          subject_desc?: string | null
+          subject_name?: string
+          track_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subjects_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tracks: {
+        Row: {
+          color_scheme: string | null
+          created_at: string
+          description: string
+          future_scope: string
+          icon: string | null
+          id: string
+          track_name: string
+        }
+        Insert: {
+          color_scheme?: string | null
+          created_at?: string
+          description: string
+          future_scope: string
+          icon?: string | null
+          id?: string
+          track_name: string
+        }
+        Update: {
+          color_scheme?: string | null
+          created_at?: string
+          description?: string
+          future_scope?: string
+          icon?: string | null
+          id?: string
+          track_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
