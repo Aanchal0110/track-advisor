@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Users, Trophy, Target, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import TrackCard from '@/components/TrackCard';
+import StaticTrackCard from '@/components/StaticTrackCard';
 import { tracks } from '@/data/tracks';
 import heroImage from '@/assets/hero-career-guidance.jpg';
 
@@ -108,7 +108,7 @@ const Landing = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {tracks.map((track) => (
-              <TrackCard
+              <StaticTrackCard
                 key={track.id}
                 title={track.title}
                 description={track.description}

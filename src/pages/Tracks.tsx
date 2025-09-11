@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import TrackCard from '@/components/TrackCard';
+import StaticTrackCard from '@/components/StaticTrackCard';
 import { tracks } from '@/data/tracks';
 
 const Tracks = () => {
@@ -26,7 +26,7 @@ const Tracks = () => {
         {/* Tracks Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {tracks.map((track) => (
-            <TrackCard
+            <StaticTrackCard
               key={track.id}
               title={track.title}
               description={track.description}
