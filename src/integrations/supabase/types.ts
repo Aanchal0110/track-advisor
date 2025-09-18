@@ -91,6 +91,21 @@ export type Database = {
           },
         ]
       }
+      "subject data": {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
       subjects: {
         Row: {
           created_at: string
