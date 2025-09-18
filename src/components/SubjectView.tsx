@@ -25,6 +25,56 @@ export const SubjectView: React.FC<SubjectViewProps> = ({ subject }) => {
     link.click();
   };
 
+  const renderResourceSection = (title: string, icon: React.ReactNode, resourceType: 'videos' | 'books' | 'references', items: string[]) => {
+    if (!items || items.length === 0) return null;
+
+    return (
+      <Card className="border-0 shadow-elegant bg-card/90 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            {icon}
+            {title}
+          </CardTitle>
+          <CardDescription>
+            {resourceType === 'videos' && 'Video tutorials and lectures'}
+            {resourceType === 'books' && 'Books and study materials'}
+            {resourceType === 'references' && 'Quick references and guides'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {items.map((item: string, index: number) => (
+            <div 
+              key={index}
+              className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+            >
+              <div className="flex items-center gap-3">
+                {resourceType === 'videos' && <Video className="h-6 w-6 text-primary" />}
+                {resourceType === 'books' && <FileText className="h-6 w-6 text-primary" />}
+                {resourceType === 'references' && <ExternalLink className="h-6 w-6 text-primary" />}
+                <div>
+                  <p className="font-medium">{item}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {resourceType === 'videos' && 'Video Content'}
+                    {resourceType === 'books' && 'Study Material'}
+                    {resourceType === 'references' && 'Quick Reference'}
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleResourceClick('#')}
+              >
+                <ExternalLink className="h-4 w-4 mr-1" />
+                {resourceType === 'videos' ? 'Watch' : resourceType === 'books' ? 'Read' : 'View'}
+              </Button>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Subject Overview */}
@@ -47,124 +97,46 @@ export const SubjectView: React.FC<SubjectViewProps> = ({ subject }) => {
         </CardHeader>
       </Card>
 
-      {/* Resources Section */}
+      {/* Difficulty-based Resources */}
       <div className="grid gap-6">
-        {resources?.pdf && (
-          <Card className="border-0 shadow-elegant bg-card/90 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                PDF Resources
-              </CardTitle>
-              <CardDescription>
-                Download or view PDF materials for this subject
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <FileText className="h-8 w-8 text-primary" />
-                  <div>
-                    <p className="font-medium">{subject.subject_name} - Study Material</p>
-                    <p className="text-sm text-muted-foreground">PDF Document</p>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleResourceClick(resources.pdf)}
-                  >
-                    <ExternalLink className="h-4 w-4 mr-1" />
-                    View
-                  </Button>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() => handleDownload(resources.pdf, `${subject.subject_name}.pdf`)}
-                  >
-                    <Download className="h-4 w-4 mr-1" />
-                    Download
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Beginner Level */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="bg-green-100 text-green-800">
+              Beginner Level
+            </Badge>
+          </div>
+          {renderResourceSection('Beginner Videos', <Video className="h-5 w-5 text-primary" />, 'videos', resources?.beginner?.videos)}
+          {renderResourceSection('Beginner Books', <FileText className="h-5 w-5 text-primary" />, 'books', resources?.beginner?.books)}
+          {renderResourceSection('Beginner References', <ExternalLink className="h-5 w-5 text-primary" />, 'references', resources?.beginner?.references)}
+        </div>
 
-        {resources?.video && (
-          <Card className="border-0 shadow-elegant bg-card/90 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Video className="h-5 w-5 text-primary" />
-                Video Lectures
-              </CardTitle>
-              <CardDescription>
-                Watch video tutorials and lectures for this subject
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <Video className="h-8 w-8 text-primary" />
-                  <div>
-                    <p className="font-medium">{subject.subject_name} - Video Lecture</p>
-                    <p className="text-sm text-muted-foreground">Video Content</p>
-                  </div>
-                </div>
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={() => handleResourceClick(resources.video)}
-                >
-                  <Video className="h-4 w-4 mr-1" />
-                  Watch
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Intermediate Level */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+              Intermediate Level
+            </Badge>
+          </div>
+          {renderResourceSection('Intermediate Videos', <Video className="h-5 w-5 text-primary" />, 'videos', resources?.intermediate?.videos)}
+          {renderResourceSection('Intermediate Books', <FileText className="h-5 w-5 text-primary" />, 'books', resources?.intermediate?.books)}
+          {renderResourceSection('Intermediate References', <ExternalLink className="h-5 w-5 text-primary" />, 'references', resources?.intermediate?.references)}
+        </div>
 
-        {resources?.links && resources.links.length > 0 && (
-          <Card className="border-0 shadow-elegant bg-card/90 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ExternalLink className="h-5 w-5 text-primary" />
-                Additional Resources
-              </CardTitle>
-              <CardDescription>
-                External links and additional study materials
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {resources.links.map((link: string, index: number) => (
-                <div 
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    <ExternalLink className="h-6 w-6 text-primary" />
-                    <div>
-                      <p className="font-medium">External Resource {index + 1}</p>
-                      <p className="text-sm text-muted-foreground">{link}</p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleResourceClick(link)}
-                  >
-                    <ExternalLink className="h-4 w-4 mr-1" />
-                    Open
-                  </Button>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
+        {/* Hard Level */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="bg-red-100 text-red-800">
+              Expert Level
+            </Badge>
+          </div>
+          {renderResourceSection('Expert Videos', <Video className="h-5 w-5 text-primary" />, 'videos', resources?.hard?.videos)}
+          {renderResourceSection('Expert Books', <FileText className="h-5 w-5 text-primary" />, 'books', resources?.hard?.books)}
+          {renderResourceSection('Expert References', <ExternalLink className="h-5 w-5 text-primary" />, 'references', resources?.hard?.references)}
+        </div>
 
         {/* Empty State */}
-        {!resources?.pdf && !resources?.video && (!resources?.links || resources.links.length === 0) && (
+        {!resources?.beginner && !resources?.intermediate && !resources?.hard && (
           <Card className="border-0 shadow-elegant bg-card/90 backdrop-blur-sm">
             <CardContent className="text-center py-12">
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

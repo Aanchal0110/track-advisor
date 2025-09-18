@@ -53,10 +53,44 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_questions: {
+        Row: {
+          correct_answer: number
+          created_at: string
+          difficulty: string
+          explanation: string | null
+          id: string
+          options: Json
+          question_text: string
+          track_id: string
+        }
+        Insert: {
+          correct_answer: number
+          created_at?: string
+          difficulty: string
+          explanation?: string | null
+          id?: string
+          options: Json
+          question_text: string
+          track_id: string
+        }
+        Update: {
+          correct_answer?: number
+          created_at?: string
+          difficulty?: string
+          explanation?: string | null
+          id?: string
+          options?: Json
+          question_text?: string
+          track_id?: string
+        }
+        Relationships: []
+      }
       quiz_results: {
         Row: {
           answers: Json
           created_at: string
+          difficulty_distribution: Json | null
           id: string
           recommended: boolean
           score: number
@@ -66,6 +100,7 @@ export type Database = {
         Insert: {
           answers: Json
           created_at?: string
+          difficulty_distribution?: Json | null
           id?: string
           recommended?: boolean
           score: number
@@ -75,6 +110,7 @@ export type Database = {
         Update: {
           answers?: Json
           created_at?: string
+          difficulty_distribution?: Json | null
           id?: string
           recommended?: boolean
           score?: number
