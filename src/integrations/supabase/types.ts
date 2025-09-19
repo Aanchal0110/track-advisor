@@ -147,6 +147,7 @@ export type Database = {
           created_at: string
           id: string
           resources: Json | null
+          semester: number | null
           subject_desc: string | null
           subject_name: string
           track_id: string
@@ -155,6 +156,7 @@ export type Database = {
           created_at?: string
           id?: string
           resources?: Json | null
+          semester?: number | null
           subject_desc?: string | null
           subject_name: string
           track_id: string
@@ -163,6 +165,7 @@ export type Database = {
           created_at?: string
           id?: string
           resources?: Json | null
+          semester?: number | null
           subject_desc?: string | null
           subject_name?: string
           track_id?: string
