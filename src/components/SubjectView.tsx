@@ -63,7 +63,7 @@ export const SubjectView: React.FC<SubjectViewProps> = ({ subject }) => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleResourceClick('#')}
+                onClick={() => handleResourceClick(item)}
               >
                 <ExternalLink className="h-4 w-4 mr-1" />
                 {resourceType === 'videos' ? 'Watch' : resourceType === 'books' ? 'Read' : 'View'}
