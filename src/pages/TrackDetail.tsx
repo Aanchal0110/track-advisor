@@ -3,8 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, ArrowLeft, TrendingUp, BookOpen, Users, DollarSign, Target, CheckCircle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, TrendingUp, BookOpen, Users, DollarSign, Target, CheckCircle, MessageSquare } from 'lucide-react';
 import { tracks } from '@/data/tracks';
+import { FeedbackDialog } from '@/components/FeedbackDialog';
 
 const TrackDetail = () => {
   const { slug } = useParams();
@@ -72,6 +73,20 @@ const TrackDetail = () => {
                 Back to Tracks
               </Link>
             </Button>
+            <FeedbackDialog track={{ 
+              id: track.id, 
+              track_name: track.title, 
+              description: track.description,
+              future_scope: track.futureScope.join(', '),
+              icon: null,
+              color_scheme: null,
+              created_at: new Date().toISOString()
+            }}>
+              <Button variant="outline" size="lg" className="gap-2">
+                <MessageSquare className="h-4 w-4" />
+                Share Feedback
+              </Button>
+            </FeedbackDialog>
           </div>
         </div>
 

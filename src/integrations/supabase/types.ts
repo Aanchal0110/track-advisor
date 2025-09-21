@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      feedback: {
+        Row: {
+          created_at: string
+          feedback_text: string | null
+          id: string
+          improvement_suggestions: string | null
+          quiz_helpfulness: number | null
+          quiz_result_id: string | null
+          rating: number
+          satisfaction_level: string
+          track_id: string | null
+          track_usefulness: number | null
+          updated_at: string
+          user_id: string
+          would_recommend: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          feedback_text?: string | null
+          id?: string
+          improvement_suggestions?: string | null
+          quiz_helpfulness?: number | null
+          quiz_result_id?: string | null
+          rating: number
+          satisfaction_level: string
+          track_id?: string | null
+          track_usefulness?: number | null
+          updated_at?: string
+          user_id: string
+          would_recommend?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          feedback_text?: string | null
+          id?: string
+          improvement_suggestions?: string | null
+          quiz_helpfulness?: number | null
+          quiz_result_id?: string | null
+          rating?: number
+          satisfaction_level?: string
+          track_id?: string | null
+          track_usefulness?: number | null
+          updated_at?: string
+          user_id?: string
+          would_recommend?: boolean | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           branch_stream: string | null

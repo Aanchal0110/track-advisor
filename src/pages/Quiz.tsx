@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, ArrowRight, RotateCcw, Trophy, Brain, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RotateCcw, Trophy, Brain, CheckCircle, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { FeedbackDialog } from '@/components/FeedbackDialog';
 
 interface QuizQuestion {
   id: string;
@@ -34,6 +35,7 @@ export default function Quiz() {
   const [showResults, setShowResults] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [savedQuizResult, setSavedQuizResult] = useState<any>(null);
 
   useEffect(() => {
     fetchTrackAndQuestions();
@@ -151,7 +153,7 @@ export default function Quiz() {
     // Save quiz result if user is logged in
     if (user && track) {
       try {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('quiz_results')
           .insert({
             user_id: user.id,
@@ -160,12 +162,15 @@ export default function Quiz() {
             answers: selectedAnswers,
             recommended: recommendation.recommended,
             difficulty_distribution: difficultyDistribution
-          });
+          })
+          .select()
+          .single();
 
         if (error) {
           console.error('Error saving quiz result:', error);
         } else {
           toast.success('Quiz completed successfully!');
+          setSavedQuizResult(data);
         }
       } catch (error) {
         console.error('Error saving quiz result:', error);
@@ -214,6 +219,7 @@ export default function Quiz() {
     setQuizStarted(false);
     setShowResults(false);
     setCurrentQuestionIndex(0);
+    setSavedQuizResult(null);
     fetchTrackAndQuestions(); // This will regenerate questions
   };
 
@@ -365,6 +371,23 @@ export default function Quiz() {
                     Explore More Tracks
                   </Button>
                 </Link>
+                <FeedbackDialog 
+                  track={track ? {
+                    id: track.id,
+                    track_name: track.track_name,
+                    description: track.description,
+                    future_scope: '',
+                    icon: null,
+                    color_scheme: null,
+                    created_at: new Date().toISOString()
+                  } : undefined}
+                  quizResult={savedQuizResult}
+                >
+                  <Button variant="secondary" className="gap-2">
+                    <MessageSquare className="h-4 w-4" />
+                    Share Feedback
+                  </Button>
+                </FeedbackDialog>
               </div>
             </CardContent>
           </Card>
