@@ -19,6 +19,12 @@ const Navigation = () => {
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Tracks', path: '/tracks' },
+    { name: 'Assessments', path: '/assessments' },
+    { name: 'Industry', path: '/industry' },
+    { name: 'Community', path: '/community' },
+    { name: 'Tools', path: '/tools' },
+    { name: 'Learning', path: '/learning' },
+    { name: 'Opportunities', path: '/opportunities' },
     ...(user ? [{ name: 'Dashboard', path: '/dashboard' }] : []),
   ];
 
