@@ -6,17 +6,26 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
+import heroCommunity from '@/assets/hero-community.jpg';
 
 const CommunityMentorship = () => {
   return (
-    <div className="min-h-screen py-8">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Community & Mentorship</h1>
-          <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <div 
+        className="relative h-[400px] bg-cover bg-center flex items-center justify-center"
+        style={{ backgroundImage: `url(${heroCommunity})` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50"></div>
+        <div className="relative z-10 text-center text-white px-4">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">Community & Mentorship</h1>
+          <p className="text-lg md:text-xl max-w-3xl mx-auto">
             Learn with peers, connect with mentors, and build your professional network.
           </p>
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-12">
 
         <Tabs defaultValue="peers" className="max-w-5xl mx-auto">
           <TabsList className="grid w-full grid-cols-3">

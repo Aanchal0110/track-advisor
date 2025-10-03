@@ -2,17 +2,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { BarChart3, Globe, Map } from 'lucide-react';
+import heroIndustry from '@/assets/hero-industry.jpg';
 
 const IndustryIntelligence = () => {
   return (
-    <div className="min-h-screen py-8">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Industry Intelligence</h1>
-          <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <div 
+        className="relative h-[400px] bg-cover bg-center flex items-center justify-center"
+        style={{ backgroundImage: `url(${heroIndustry})` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50"></div>
+        <div className="relative z-10 text-center text-white px-4">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">Industry Intelligence</h1>
+          <p className="text-lg md:text-xl max-w-3xl mx-auto">
             Job market data, salaries, and growth trends to inform your career choices.
           </p>
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-12">
 
         <Tabs defaultValue="market" className="max-w-5xl mx-auto">
           <TabsList className="grid w-full grid-cols-3">
