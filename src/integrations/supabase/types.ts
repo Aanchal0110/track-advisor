@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      alumni: {
+        Row: {
+          available_for_mentorship: boolean | null
+          created_at: string | null
+          current_company: string | null
+          current_position: string | null
+          degree: string
+          department: string
+          expertise: string[] | null
+          graduation_year: number
+          id: string
+          linkedin_url: string | null
+          location: string | null
+          name: string
+          profile_image: string | null
+        }
+        Insert: {
+          available_for_mentorship?: boolean | null
+          created_at?: string | null
+          current_company?: string | null
+          current_position?: string | null
+          degree: string
+          department: string
+          expertise?: string[] | null
+          graduation_year: number
+          id?: string
+          linkedin_url?: string | null
+          location?: string | null
+          name: string
+          profile_image?: string | null
+        }
+        Update: {
+          available_for_mentorship?: boolean | null
+          created_at?: string | null
+          current_company?: string | null
+          current_position?: string | null
+          degree?: string
+          department?: string
+          expertise?: string[] | null
+          graduation_year?: number
+          id?: string
+          linkedin_url?: string | null
+          location?: string | null
+          name?: string
+          profile_image?: string | null
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           badge_name: string
@@ -438,6 +486,50 @@ export type Database = {
           registration_url?: string | null
         }
         Relationships: []
+      }
+      peer_groups: {
+        Row: {
+          created_at: string | null
+          description: string
+          group_name: string
+          id: string
+          is_active: boolean | null
+          meeting_schedule: string | null
+          member_count: number
+          skill_level: string
+          track_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          group_name: string
+          id?: string
+          is_active?: boolean | null
+          meeting_schedule?: string | null
+          member_count?: number
+          skill_level: string
+          track_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          group_name?: string
+          id?: string
+          is_active?: boolean | null
+          meeting_schedule?: string | null
+          member_count?: number
+          skill_level?: string
+          track_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "peer_groups_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       personality_assessments: {
         Row: {

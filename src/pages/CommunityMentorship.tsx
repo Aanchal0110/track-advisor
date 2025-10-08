@@ -35,16 +35,7 @@ const CommunityMentorship = () => {
           </TabsList>
 
           <TabsContent value="peers">
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>Peer Study Groups & Forums</CardTitle>
-                <CardDescription>Join topic-based groups and ask questions.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">Create or join cohorts organized by track and skill level.</p>
-                <Button disabled>Coming soon</Button>
-              </CardContent>
-            </Card>
+            <PeerGroupsGrid />
           </TabsContent>
 
           <TabsContent value="mentors">
@@ -52,16 +43,7 @@ const CommunityMentorship = () => {
           </TabsContent>
 
           <TabsContent value="alumni">
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>Alumni Network</CardTitle>
-                <CardDescription>Connect with alumni for referrals and guidance.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">Browse alumni by company, track, and graduation year.</p>
-                <Button disabled>Coming soon</Button>
-              </CardContent>
-            </Card>
+            <AlumniGrid />
           </TabsContent>
         </Tabs>
       </div>
@@ -167,6 +149,175 @@ function MentorsGrid() {
           ))}
           {filtered.length === 0 && (
             <div className="text-sm text-muted-foreground">No mentors found.</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type PeerGroup = {
+  id: string;
+  group_name: string;
+  description: string;
+  member_count: number;
+  skill_level: string;
+  meeting_schedule?: string | null;
+};
+
+function PeerGroupsGrid() {
+  const [groups, setGroups] = useState<PeerGroup[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const { data, error } = await supabase.from('peer_groups').select('*').eq('is_active', true).order('member_count', { ascending: false });
+        if (error) throw error;
+        setGroups(data || []);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGroups();
+  }, []);
+
+  return (
+    <div className="mt-6">
+      <div className="mb-4">
+        <div className="text-xl font-semibold">Peer Study Groups</div>
+        <div className="text-sm text-muted-foreground">Join topic-based groups and collaborate with peers</div>
+      </div>
+      {loading ? (
+        <div className="text-sm text-muted-foreground">Loading groups...</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {groups.map((group) => (
+            <Card key={group.id} className="border-0 shadow-sm">
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="text-lg font-semibold">{group.group_name}</div>
+                  <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary font-medium">{group.skill_level}</span>
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">{group.description}</p>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    <span>{group.member_count} members</span>
+                  </div>
+                  {group.meeting_schedule && (
+                    <div className="text-muted-foreground">{group.meeting_schedule}</div>
+                  )}
+                </div>
+                <Button className="w-full mt-4" variant="outline">Join Group</Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type Alumni = {
+  id: string;
+  name: string;
+  graduation_year: number;
+  degree: string;
+  department: string;
+  current_company?: string | null;
+  current_position?: string | null;
+  location?: string | null;
+  linkedin_url?: string | null;
+  expertise?: string[] | null;
+  available_for_mentorship: boolean;
+};
+
+function AlumniGrid() {
+  const [alumni, setAlumni] = useState<Alumni[]>([]);
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAlumni = async () => {
+      try {
+        const { data, error } = await supabase.from('alumni').select('*').order('graduation_year', { ascending: false });
+        if (error) throw error;
+        setAlumni(data || []);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAlumni();
+  }, []);
+
+  const filtered = alumni.filter(a => {
+    const target = `${a.name} ${a.current_company ?? ''} ${a.current_position ?? ''} ${a.department} ${(a.expertise ?? []).join(' ')}`.toLowerCase();
+    return target.includes(query.toLowerCase());
+  });
+
+  return (
+    <div className="mt-6">
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div>
+          <div className="text-xl font-semibold">Alumni Network</div>
+          <div className="text-sm text-muted-foreground">Connect with VIT alumni for guidance and referrals</div>
+        </div>
+        <Input
+          placeholder="Search alumni..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="max-w-xs"
+        />
+      </div>
+      {loading ? (
+        <div className="text-sm text-muted-foreground">Loading alumni...</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((alum) => {
+            const initials = alum.name.split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase();
+            return (
+              <Card key={alum.id} className="border-0 shadow-sm">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4 mb-3">
+                    <Avatar className="h-16 w-16">
+                      <AvatarFallback>{initials}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="text-lg font-semibold">{alum.name}</div>
+                      <div className="text-xs text-muted-foreground">Class of {alum.graduation_year}</div>
+                    </div>
+                  </div>
+                  {alum.current_position && alum.current_company && (
+                    <div className="mb-2">
+                      <div className="text-sm font-medium">{alum.current_position}</div>
+                      <div className="text-sm text-muted-foreground">{alum.current_company}</div>
+                    </div>
+                  )}
+                  <div className="text-xs text-muted-foreground mb-2">{alum.degree} • {alum.department}</div>
+                  {alum.expertise && alum.expertise.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {alum.expertise.map((skill) => (
+                        <span key={skill} className="text-xs px-2 py-0.5 rounded bg-muted">{skill}</span>
+                      ))}
+                    </div>
+                  )}
+                  {alum.linkedin_url && (
+                    <a href={alum.linkedin_url} target="_blank" rel="noreferrer" className="text-primary text-xs underline">View LinkedIn Profile</a>
+                  )}
+                  {alum.available_for_mentorship && (
+                    <Button className="w-full mt-3" size="sm" variant="outline">Connect</Button>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+          {filtered.length === 0 && (
+            <div className="text-sm text-muted-foreground">No alumni found.</div>
           )}
         </div>
       )}
