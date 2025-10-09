@@ -94,7 +94,7 @@ const Auth = () => {
             <div className="p-3 rounded-lg" style={{ background: 'var(--gradient-primary)' }}>
               <GraduationCap className="h-8 w-8 text-white" />
             </div>
-            <span className="text-2xl font-bold text-foreground">CareerGuide</span>
+            <span className="text-2xl font-bold text-foreground">AIsensi</span>
           </Link>
           <p className="text-muted-foreground mt-2">Your path to the perfect career starts here</p>
         </div>

@@ -41,7 +41,7 @@ const Navigation = () => {
             <div className="p-2 rounded-lg" style={{ background: 'var(--gradient-primary)' }}>
               <GraduationCap className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-foreground">CareerGuide</span>
+            <span className="text-xl font-bold text-foreground">AIsensi</span>
           </Link>
 
           {/* Desktop Navigation */}
