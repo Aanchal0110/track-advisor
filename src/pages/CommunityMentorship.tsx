@@ -26,7 +26,6 @@ const CommunityMentorship = () => {
       </div>
 
       <div className="container mx-auto px-4 py-12">
-
         <Tabs defaultValue="peers" className="max-w-5xl mx-auto">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="peers" className="flex items-center gap-2"><Users className="h-4 w-4" /> Peer Groups</TabsTrigger>
@@ -52,7 +51,6 @@ const CommunityMentorship = () => {
 };
 
 export default CommunityMentorship;
-
 
 type Mentor = {
   id: string;
@@ -130,7 +128,7 @@ function MentorsGrid() {
     <div className="mt-6">
       <div className="flex items-center justify-between gap-3 mb-4">
         <div>
-          <div className="text-xl font-semibold">Mentors</div>
+          <div className="text-xl font-semibold">VIT Faculty Mentors</div>
           <div className="text-sm text-muted-foreground">Search by name, designation, or department</div>
         </div>
         <Input
@@ -172,7 +170,7 @@ function PeerGroupsGrid() {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const { data, error } = await supabase.from('peer_groups').select('*').eq('is_active', true).order('member_count', { ascending: false });
+        const { data, error } = await supabase.from('peer_groups').select('*').order('member_count', { ascending: false });
         if (error) throw error;
         setGroups(data || []);
       } catch (e) {
@@ -188,30 +186,34 @@ function PeerGroupsGrid() {
     <div className="mt-6">
       <div className="mb-4">
         <div className="text-xl font-semibold">Peer Study Groups</div>
-        <div className="text-sm text-muted-foreground">Join topic-based groups and collaborate with peers</div>
+        <div className="text-sm text-muted-foreground">Join active study groups and learn together</div>
       </div>
       {loading ? (
         <div className="text-sm text-muted-foreground">Loading groups...</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {groups.map((group) => (
-            <Card key={group.id} className="border-0 shadow-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="text-lg font-semibold">{group.group_name}</div>
-                  <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary font-medium">{group.skill_level}</span>
-                </div>
-                <p className="text-sm text-muted-foreground mb-3">{group.description}</p>
+            <Card key={group.id}>
+              <CardHeader>
+                <CardTitle className="text-lg">{group.group_name}</CardTitle>
+                <CardDescription>{group.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
                 <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    <span>{group.member_count} members</span>
-                  </div>
-                  {group.meeting_schedule && (
-                    <div className="text-muted-foreground">{group.meeting_schedule}</div>
-                  )}
+                  <span className="text-muted-foreground">Members:</span>
+                  <span className="font-semibold">{group.member_count}</span>
                 </div>
-                <Button className="w-full mt-4" variant="outline">Join Group</Button>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Level:</span>
+                  <span className="px-2 py-1 rounded bg-muted text-foreground/80">{group.skill_level}</span>
+                </div>
+                {group.meeting_schedule && (
+                  <div className="text-sm">
+                    <span className="text-muted-foreground">Schedule: </span>
+                    <span>{group.meeting_schedule}</span>
+                  </div>
+                )}
+                <Button className="w-full mt-2">Join Group</Button>
               </CardContent>
             </Card>
           ))}
@@ -256,7 +258,7 @@ function AlumniGrid() {
   }, []);
 
   const filtered = alumni.filter(a => {
-    const target = `${a.name} ${a.current_company ?? ''} ${a.current_position ?? ''} ${a.department} ${(a.expertise ?? []).join(' ')}`.toLowerCase();
+    const target = `${a.name} ${a.current_company ?? ''} ${a.current_position ?? ''} ${a.department}`.toLowerCase();
     return target.includes(query.toLowerCase());
   });
 
@@ -264,8 +266,8 @@ function AlumniGrid() {
     <div className="mt-6">
       <div className="flex items-center justify-between gap-3 mb-4">
         <div>
-          <div className="text-xl font-semibold">Alumni Network</div>
-          <div className="text-sm text-muted-foreground">Connect with VIT alumni for guidance and referrals</div>
+          <div className="text-xl font-semibold">VIT Alumni Network</div>
+          <div className="text-sm text-muted-foreground">Connect with successful alumni for guidance</div>
         </div>
         <Input
           placeholder="Search alumni..."
@@ -277,51 +279,46 @@ function AlumniGrid() {
       {loading ? (
         <div className="text-sm text-muted-foreground">Loading alumni...</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((alum) => {
-            const initials = alum.name.split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase();
-            return (
-              <Card key={alum.id} className="border-0 shadow-sm">
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-4 mb-3">
-                    <Avatar className="h-16 w-16">
-                      <AvatarFallback>{initials}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="text-lg font-semibold">{alum.name}</div>
-                      <div className="text-xs text-muted-foreground">Class of {alum.graduation_year}</div>
-                    </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((person) => (
+            <Card key={person.id}>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-4 mb-3">
+                  <Avatar className="h-14 w-14">
+                    <AvatarFallback>{person.name.split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-semibold">{person.name}</div>
+                    <div className="text-sm text-muted-foreground">{person.degree} {person.graduation_year}</div>
                   </div>
-                  {alum.current_position && alum.current_company && (
-                    <div className="mb-2">
-                      <div className="text-sm font-medium">{alum.current_position}</div>
-                      <div className="text-sm text-muted-foreground">{alum.current_company}</div>
-                    </div>
+                </div>
+                {person.current_company && (
+                  <div className="text-sm mb-2">
+                    <span className="font-medium">{person.current_position}</span>
+                    <div className="text-muted-foreground">{person.current_company}</div>
+                  </div>
+                )}
+                <div className="text-sm text-muted-foreground mb-2">{person.location}</div>
+                {person.expertise && person.expertise.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {person.expertise.map((skill) => (
+                      <span key={skill} className="text-xs px-2 py-1 rounded bg-muted">{skill}</span>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  {person.linkedin_url && (
+                    <a href={person.linkedin_url} target="_blank" rel="noreferrer" className="text-primary text-sm underline">LinkedIn</a>
                   )}
-                  <div className="text-xs text-muted-foreground mb-2">{alum.degree} • {alum.department}</div>
-                  {alum.expertise && alum.expertise.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {alum.expertise.map((skill) => (
-                        <span key={skill} className="text-xs px-2 py-0.5 rounded bg-muted">{skill}</span>
-                      ))}
-                    </div>
+                  {person.available_for_mentorship && (
+                    <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">Available for Mentorship</span>
                   )}
-                  {alum.linkedin_url && (
-                    <a href={alum.linkedin_url} target="_blank" rel="noreferrer" className="text-primary text-xs underline">View LinkedIn Profile</a>
-                  )}
-                  {alum.available_for_mentorship && (
-                    <Button className="w-full mt-3" size="sm" variant="outline">Connect</Button>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
-          {filtered.length === 0 && (
-            <div className="text-sm text-muted-foreground">No alumni found.</div>
-          )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
     </div>
   );
 }
-
