@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import StaticTrackCard from '@/components/StaticTrackCard';
 import { tracks } from '@/data/tracks';
 import heroImage from '@/assets/hero-career-guidance.jpg';
+import Chatbot from '@/components/Chatbot';
 
 const Landing = () => {
   return (
@@ -172,6 +173,9 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* Chatbot */}
+      <Chatbot />
     </div>
   );
 };

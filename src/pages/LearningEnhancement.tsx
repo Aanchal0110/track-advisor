@@ -1,12 +1,362 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge as UIBadge } from '@/components/ui/badge';
-import { Trophy, Badge as BadgeIcon, Route, Clock, ExternalLink, Award } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Trophy, GraduationCap, Route, ExternalLink, DollarSign, Clock, User, MessageSquare } from 'lucide-react';
+import heroLearning from '@/assets/hero-learning.jpg';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { Progress } from '@/components/ui/progress';
-import heroLearning from '@/assets/hero-learning.jpg';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+
+type Certification = {
+  id: string;
+  certification_name: string;
+  provider: string;
+  description: string;
+  duration: string;
+  cost: number;
+  certification_url: string;
+  track_id: string | null;
+};
+
+const CertificationsTab = () => {
+  const [certifications, setCertifications] = useState<Certification[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filterProvider, setFilterProvider] = useState<string>('all');
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        let query = (supabase as any)
+          .from('certifications')
+          .select('id, certification_name, provider, description, duration, cost, certification_url, track_id')
+          .order('provider', { ascending: true })
+          .order('certification_name', { ascending: true });
+
+        if (filterProvider !== 'all') {
+          query = query.eq('provider', filterProvider);
+        }
+
+        const { data, error: err } = await query;
+
+        if (!mounted) return;
+        if (err) {
+          console.error('Error fetching certifications:', err);
+          if (err.message?.includes('does not exist') || err.message?.includes('schema cache')) {
+            setError('Table certifications not found or column names don\'t match.');
+          } else {
+            setError(err.message || 'Failed to load certifications');
+          }
+          setCertifications([]);
+        } else if (data) {
+          setCertifications(data as Certification[]);
+        }
+      } catch (e) {
+        console.error('Exception fetching certifications:', e);
+        setError('An error occurred');
+        setCertifications([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [filterProvider]);
+
+  const providers = Array.from(new Set(certifications.map(c => c.provider))).sort();
+
+  if (loading) {
+    return (
+      <Card className="mt-6">
+        <CardContent className="p-6">
+          <div className="text-sm text-muted-foreground">Loading certifications…</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="mt-6">
+        <CardContent className="p-6">
+          <div className="text-sm text-destructive mb-2">Error: {error}</div>
+          <div className="text-xs text-muted-foreground">
+            Make sure the certifications table has columns: certification_name, provider, description, duration, cost, certification_url.
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="mt-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Certification Roadmaps</CardTitle>
+          <CardDescription>AWS, Google, Microsoft and more. {certifications.length} certifications available.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {certifications.length > 0 && providers.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={filterProvider === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFilterProvider('all')}
+              >
+                All Providers
+              </Button>
+              {providers.slice(0, 10).map((p) => (
+                <Button
+                  key={p}
+                  variant={filterProvider === p ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFilterProvider(p)}
+                >
+                  {p}
+                </Button>
+              ))}
+            </div>
+          )}
+
+          {certifications.length === 0 ? (
+            <div className="text-sm text-muted-foreground text-center py-8">
+              No certifications found. Make sure the certifications table has data.
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {certifications.map((cert) => (
+                <Card key={cert.id} className="flex flex-col">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">{cert.certification_name}</CardTitle>
+                    <CardDescription className="text-sm font-medium text-primary">{cert.provider}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col space-y-3">
+                    <p className="text-sm text-muted-foreground line-clamp-3">{cert.description}</p>
+                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {cert.duration}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <DollarSign className="h-3 w-3" />
+                        ${cert.cost === 0 ? 'Free' : cert.cost}
+                      </span>
+                    </div>
+                    <div className="mt-auto pt-2">
+                      <Button asChild size="sm" variant="outline" className="w-full">
+                        <a href={cert.certification_url} target="_blank" rel="noreferrer" className="flex items-center gap-2">
+                          Learn More
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+type Mentor = {
+  id: string;
+  name: string;
+  designation: string;
+  department: string;
+  photo_url?: string | null;
+  profile_url?: string | null;
+  expertise: string[];
+};
+
+const GuidanceTab = () => {
+  const [mentors, setMentors] = useState<Mentor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Fetch mentors matching actual table structure (no bio, no availability)
+        const { data, error: err } = await (supabase as any)
+          .from('mentors')
+          .select('id, name, designation, department, photo_url, profile_url, expertise')
+          .order('name', { ascending: true });
+
+        if (!mounted) return;
+        if (err) {
+          console.error('Error fetching mentors:', err);
+          // If table doesn't exist, just show empty state instead of error
+          if (err.message?.includes('does not exist') || err.message?.includes('schema cache')) {
+            console.log('Table not found, showing empty state');
+            setMentors([]);
+            setError(null); // Don't show error, just show empty state
+          } else {
+            setError(err.message || 'Failed to load mentors');
+            setMentors([]);
+          }
+        } else if (data) {
+          setMentors(data as Mentor[]);
+        } else {
+          setMentors([]);
+        }
+      } catch (e) {
+        console.error('Exception fetching mentors:', e);
+        setError('An error occurred');
+        setMentors([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  const filteredMentors = mentors.filter(mentor => {
+    const search = searchQuery.toLowerCase();
+    return (
+      mentor.name.toLowerCase().includes(search) ||
+      mentor.designation?.toLowerCase().includes(search) ||
+      mentor.department?.toLowerCase().includes(search) ||
+      mentor.expertise?.some(exp => exp.toLowerCase().includes(search))
+    );
+  });
+
+  if (loading) {
+    return (
+      <Card className="mt-6">
+        <CardContent className="p-6">
+          <div className="text-sm text-muted-foreground">Loading mentors…</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="mt-6">
+        <CardContent className="p-6">
+          <div className="text-sm text-destructive mb-2">Error: {error}</div>
+          <div className="rounded-lg border bg-muted/30 p-4 mt-4">
+            <p className="text-sm font-medium mb-2">⚠️ Setup Required</p>
+            <p className="text-sm text-muted-foreground mb-2">
+              The <code className="bg-background px-1 rounded">mentors</code> table doesn't exist yet.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              <strong>To create the table:</strong> Go to Supabase SQL Editor → Run <code className="bg-background px-1 rounded">mentors_schema.sql</code> (located in <code className="bg-background px-1 rounded">supabase/sql/</code>)
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="mt-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Mentor Guidance</CardTitle>
+          <CardDescription>Connect with experienced mentors for career guidance and support.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <Input
+                placeholder="Search mentors by name, designation, department, or expertise..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="max-w-md"
+              />
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {filteredMentors.length} {filteredMentors.length === 1 ? 'mentor' : 'mentors'} found
+            </div>
+          </div>
+
+          {mentors.length === 0 ? (
+            <div className="text-center py-8 space-y-2">
+              <div className="text-sm text-muted-foreground">No mentors found.</div>
+              {!error && (
+                <div className="text-xs text-muted-foreground">
+                  Add mentors to the <code className="bg-muted px-1 rounded">mentors</code> table in Supabase to display them here.
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredMentors.map((mentor) => {
+                const initials = mentor.name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
+                return (
+                  <Card key={mentor.id} className="flex flex-col">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start gap-4 mb-4">
+                        <Avatar className="h-16 w-16">
+                          <AvatarImage src={mentor.photo_url || undefined} alt={mentor.name} />
+                          <AvatarFallback>{initials}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg">{mentor.name}</h3>
+                          {mentor.designation && (
+                            <p className="text-sm text-primary font-medium">{mentor.designation}</p>
+                          )}
+                          {mentor.department && (
+                            <p className="text-sm text-muted-foreground">{mentor.department}</p>
+                          )}
+                        </div>
+                      </div>
+
+                             {mentor.expertise && mentor.expertise.length > 0 && (
+                               <div className="mb-4">
+                                 <p className="text-xs font-medium text-muted-foreground mb-2">Expertise</p>
+                                 <div className="flex flex-wrap gap-2">
+                                   {mentor.expertise.map((exp) => (
+                                     <span key={exp} className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+                                       {exp}
+                                     </span>
+                                   ))}
+                                 </div>
+                               </div>
+                             )}
+
+                      <div className="mt-auto pt-4 border-t flex gap-2">
+                        {mentor.profile_url && (
+                          <Button asChild size="sm" variant="outline" className="flex-1">
+                            <a href={mentor.profile_url} target="_blank" rel="noreferrer" className="flex items-center gap-2">
+                              <User className="h-3 w-3" />
+                              Profile
+                            </a>
+                          </Button>
+                        )}
+                        <Button size="sm" variant="default" className="flex-1">
+                          <MessageSquare className="h-3 w-3 mr-2" />
+                          Connect
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+
+          {searchQuery && filteredMentors.length === 0 && mentors.length > 0 && (
+            <div className="text-sm text-muted-foreground text-center py-8">
+              No mentors match "{searchQuery}". Try a different search term.
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 const LearningEnhancement = () => {
   const { user } = useAuth();
@@ -57,7 +407,7 @@ const LearningEnhancement = () => {
         <Tabs defaultValue="progress" className="max-w-5xl mx-auto">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="progress" className="flex items-center gap-2"><Trophy className="h-4 w-4" /> Progress</TabsTrigger>
-            <TabsTrigger value="badges" className="flex items-center gap-2"><BadgeIcon className="h-4 w-4" /> Badges</TabsTrigger>
+            <TabsTrigger value="guidance" className="flex items-center gap-2"><GraduationCap className="h-4 w-4" /> Guidance</TabsTrigger>
             <TabsTrigger value="certs" className="flex items-center gap-2"><Route className="h-4 w-4" /> Certifications</TabsTrigger>
           </TabsList>
 
@@ -116,88 +466,12 @@ const LearningEnhancement = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="badges">
-            <div className="mt-6 space-y-4">
-              {!user ? (
-                <Card>
-                  <CardContent className="pt-6">
-                    <p className="text-sm text-muted-foreground">Please sign in to view your badges.</p>
-                  </CardContent>
-                </Card>
-              ) : loading ? (
-                <div className="text-sm text-muted-foreground">Loading badges...</div>
-              ) : userBadges.length === 0 ? (
-                <Card>
-                  <CardContent className="pt-6">
-                    <p className="text-sm text-muted-foreground">No badges earned yet. Keep learning to unlock achievements!</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {userBadges.map((userBadge) => (
-                    <Card key={userBadge.id} className="text-center">
-                      <CardContent className="pt-6">
-                        <div className="text-4xl mb-2">{userBadge.badges?.icon || '🏆'}</div>
-                        <h3 className="font-semibold mb-1">{userBadge.badges?.badge_name}</h3>
-                        <p className="text-sm text-muted-foreground mb-3">{userBadge.badges?.description}</p>
-                        <UIBadge variant="secondary">+{userBadge.badges?.points} points</UIBadge>
-                        <div className="text-xs text-muted-foreground mt-3">
-                          Earned {new Date(userBadge.earned_at).toLocaleDateString()}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
+          <TabsContent value="guidance">
+            <GuidanceTab />
           </TabsContent>
 
           <TabsContent value="certs">
-            <div className="mt-6 space-y-4">
-              <div className="text-xl font-semibold">Certification Roadmaps</div>
-              {loading ? (
-                <div className="text-sm text-muted-foreground">Loading certifications...</div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {certifications.map((cert) => (
-                    <Card key={cert.id}>
-                      <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <Award className="h-5 w-5" />
-                          {cert.certification_name}
-                        </CardTitle>
-                        <CardDescription>{cert.provider}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <p className="text-sm text-muted-foreground">{cert.description}</p>
-                        <div className="flex items-center gap-4 text-sm">
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                            <span>{cert.duration}</span>
-                          </div>
-                          {cert.cost !== null && (
-                            <div className="flex items-center gap-1">
-                              <span className="font-medium">Cost:</span>
-                              <span>${cert.cost}</span>
-                            </div>
-                          )}
-                        </div>
-                        {cert.certification_url && (
-                          <a
-                            href={cert.certification_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-primary hover:underline flex items-center gap-1"
-                          >
-                            Learn More <ExternalLink className="h-3 w-3" />
-                          </a>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
+            <CertificationsTab />
           </TabsContent>
         </Tabs>
       </div>

@@ -31,7 +31,13 @@ const Dashboard = () => {
         .order('track_name');
       
       if (error) throw error;
-      setTracks(data || []);
+      
+      // Remove duplicates by track_name (keep first occurrence)
+      const uniqueTracks = data ? Array.from(
+        new Map(data.map(track => [track.track_name, track])).values()
+      ) : [];
+      
+      setTracks(uniqueTracks);
     } catch (error) {
       console.error('Error fetching tracks:', error);
     } finally {
@@ -41,20 +47,37 @@ const Dashboard = () => {
 
   const fetchSubjects = async (trackId: string) => {
     try {
+      console.log('Fetching subjects for track_id:', trackId);
+      
       const { data, error } = await supabase
         .from('subjects')
         .select('*')
         .eq('track_id', trackId)
         .order('subject_name');
       
-      if (error) throw error;
-      setSubjects(data || []);
+      if (error) {
+        console.error('Supabase error fetching subjects:', error);
+        throw error;
+      }
+      
+      console.log('Raw subjects data:', data);
+      console.log('Number of subjects found:', data?.length || 0);
+      
+      // Remove duplicates by subject_name + track_id (keep first occurrence)
+      const uniqueSubjects = data ? Array.from(
+        new Map(data.map(subject => [`${subject.subject_name}_${subject.track_id}`, subject])).values()
+      ) : [];
+      
+      console.log('Unique subjects after deduplication:', uniqueSubjects.length);
+      setSubjects(uniqueSubjects);
     } catch (error) {
       console.error('Error fetching subjects:', error);
+      setSubjects([]); // Ensure subjects are cleared on error
     }
   };
 
   const handleTrackClick = async (track: Track) => {
+    console.log('Track clicked:', track.track_name, 'ID:', track.id);
     setSelectedTrack(track);
     setSelectedSubject(null);
     await fetchSubjects(track.id);
@@ -141,7 +164,14 @@ const Dashboard = () => {
             </Card>
 
             <div>
-              <h2 className="text-2xl font-bold mb-6 text-foreground">Subjects</h2>
+              <h2 className="text-2xl font-bold mb-6 text-foreground">
+                Subjects
+                {subjects.length > 0 && (
+                  <span className="text-sm font-normal text-muted-foreground ml-2">
+                    ({subjects.length} {subjects.length === 1 ? 'subject' : 'subjects'})
+                  </span>
+                )}
+              </h2>
               {subjects.length > 0 ? (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {subjects.map((subject) => (
@@ -161,8 +191,11 @@ const Dashboard = () => {
                 </div>
               ) : (
                 <Card className="border-0 shadow-elegant bg-card/90 backdrop-blur-sm">
-                  <CardContent className="text-center py-8">
+                  <CardContent className="text-center py-8 space-y-2">
                     <p className="text-muted-foreground">No subjects available for this track yet.</p>
+                    <p className="text-xs text-muted-foreground">
+                      Track ID: {selectedTrack?.id}
+                    </p>
                   </CardContent>
                 </Card>
               )}

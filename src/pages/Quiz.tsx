@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ArrowRight, RotateCcw, Trophy, Brain, CheckCircle, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { tracks as staticTracks } from '@/data/tracks';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { FeedbackDialog } from '@/components/FeedbackDialog';
@@ -54,30 +55,80 @@ export default function Quiz() {
         .ilike('track_name', `%${slug.replace('-', ' ')}%`)
         .single();
 
-      if (trackError || !trackData) {
-        console.error('Track not found:', trackError);
+      let resolvedTrack: Track | null = null;
+      if (!trackError && trackData) {
+        resolvedTrack = trackData as Track;
+      } else {
+        // Fallback to static tracks (local data) when Supabase has no track
+        const local = staticTracks.find(
+          (t) => t.id === slug || t.title.toLowerCase() === slug.replace('-', ' ').toLowerCase()
+        );
+        if (local) {
+          resolvedTrack = {
+            id: local.id,
+            track_name: local.title,
+            description: local.description,
+          };
+        }
+      }
+
+      if (!resolvedTrack) {
+        console.error('Track not found from either Supabase or local data');
+        setTrack(null);
         return;
       }
 
-      setTrack(trackData);
+      setTrack(resolvedTrack);
 
       // Fetch all questions for this track
       const { data: questionsData, error: questionsError } = await supabase
         .from('quiz_questions')
         .select('*')
-        .eq('track_id', trackData.id);
+        .eq('track_id', resolvedTrack.id);
 
-      if (questionsError) {
-        console.error('Error fetching questions:', questionsError);
-        return;
+      let preparedQuestions: QuizQuestion[] = [];
+      if (!questionsError && questionsData && questionsData.length > 0) {
+        preparedQuestions = questionsData.map((q: any) => ({
+          ...q,
+          options: Array.isArray(q.options) ? q.options : JSON.parse(q.options as string),
+          difficulty: q.difficulty as 'beginner' | 'intermediate' | 'hard',
+        }));
+      } else {
+        // Fallback: generate subject-related questions from local track subjects when no DB questions
+        const local = staticTracks.find((t) => t.id === resolvedTrack!.id);
+        const allSubjects = local?.subjects || [];
+        const seedSubjects = allSubjects.slice(0, 10);
+        preparedQuestions = seedSubjects.map((subject, idx) => {
+          const distractors = allSubjects
+            .filter((s) => s !== subject)
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3);
+          const optionsShuffled = [subject, ...distractors].sort(() => Math.random() - 0.5);
+          const correctIndex = optionsShuffled.indexOf(subject);
+          return {
+            id: `local-${resolvedTrack!.id}-${idx}`,
+            question_text: `Which of the following is a core topic related to ${resolvedTrack!.track_name}?`,
+            options: optionsShuffled,
+            correct_answer: correctIndex,
+            difficulty: idx < 4 ? 'beginner' : idx < 7 ? 'intermediate' : 'hard',
+            explanation: `"${subject}" is part of the ${resolvedTrack!.track_name} curriculum.`,
+          } as QuizQuestion;
+        });
+        if (preparedQuestions.length === 0) {
+          // Absolute minimal fallback to avoid empty quizzes
+          preparedQuestions = Array.from({ length: 10 }).map((_, idx) => ({
+            id: `local-generic-${idx}`,
+            question_text: `Sample question ${idx + 1} for ${resolvedTrack!.track_name}`,
+            options: ['Choice A', 'Choice B', 'Choice C', 'Choice D'],
+            correct_answer: 0,
+            difficulty: idx < 4 ? 'beginner' : idx < 7 ? 'intermediate' : 'hard',
+            explanation: 'This is a generated placeholder question.',
+          }));
+        }
       }
 
       // Randomize and select questions with proper difficulty distribution
-      const shuffledQuestions = generateQuizQuestions(questionsData?.map(q => ({
-        ...q,
-        options: Array.isArray(q.options) ? q.options : JSON.parse(q.options as string),
-        difficulty: q.difficulty as 'beginner' | 'intermediate' | 'hard'
-      })) || []);
+      const shuffledQuestions = generateQuizQuestions(preparedQuestions);
       setQuestions(shuffledQuestions);
       setSelectedAnswers(new Array(shuffledQuestions.length).fill(-1));
       

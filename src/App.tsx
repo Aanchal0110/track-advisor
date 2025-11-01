@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navigation from "./components/Navigation";
 import Landing from "./pages/Landing";
+import '@/utils/supabaseTest'; // Load Supabase connection test utility
 import Tracks from "./pages/Tracks";
 import TrackDetail from "./pages/TrackDetail";
 import Quiz from "./pages/Quiz";
