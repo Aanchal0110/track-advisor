@@ -340,16 +340,16 @@ export default function Quiz() {
                 </div>
               </div>
               
-              <div className="flex gap-4 justify-center">
+              <div className="flex gap-4 justify-center items-center pt-4">
                 <Link to="/tracks">
-                  <Button variant="outline">
+                  <Button variant="outline" className="min-w-[140px]">
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Tracks
                   </Button>
                 </Link>
                 <Button 
                   onClick={() => setQuizStarted(true)}
-                  className="bg-gradient-primary hover:opacity-90"
+                  className="bg-gradient-primary hover:opacity-90 min-w-[140px]"
                 >
                   Start Quiz
                 </Button>

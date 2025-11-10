@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Users, Trophy, Target, BookOpen } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import StaticTrackCard from '@/components/StaticTrackCard';
 import { tracks } from '@/data/tracks';
@@ -45,46 +45,10 @@ const Landing = () => {
                 </Link>
               </Button>
               <Button variant="outline" size="lg" className="text-lg px-8 py-6" asChild>
-                <Link to="/about">
-                  Learn More
+                <Link to="/assessments">
+                  Take Assessment
                 </Link>
               </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-career-blue to-career-purple rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-white" />
-              </div>
-              <div className="text-3xl font-bold text-foreground mb-2">10K+</div>
-              <div className="text-muted-foreground">Students Guided</div>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-career-purple to-career-blue rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trophy className="h-8 w-8 text-white" />
-              </div>
-              <div className="text-3xl font-bold text-foreground mb-2">95%</div>
-              <div className="text-muted-foreground">Success Rate</div>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-career-blue to-career-purple rounded-full flex items-center justify-center mx-auto mb-4">
-                <Target className="h-8 w-8 text-white" />
-              </div>
-              <div className="text-3xl font-bold text-foreground mb-2">4</div>
-              <div className="text-muted-foreground">Career Tracks</div>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-career-purple to-career-blue rounded-full flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="h-8 w-8 text-white" />
-              </div>
-              <div className="text-3xl font-bold text-foreground mb-2">50+</div>
-              <div className="text-muted-foreground">Quiz Questions</div>
             </div>
           </div>
         </div>
@@ -166,8 +130,8 @@ const Landing = () => {
               className="text-lg px-8 py-6 border-white text-white hover:bg-white hover:text-career-blue"
               asChild
             >
-              <Link to="/about">
-                Learn More
+              <Link to="/assessments">
+                Take Assessment
               </Link>
             </Button>
           </div>
